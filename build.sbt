@@ -5,8 +5,11 @@ lazy val root = project
   .settings(
     name := "WeatherAggregator",
     version := "0.1.0-SNAPSHOT",
-
     scalaVersion := scala3Version,
-
-    libraryDependencies += "org.scalameta" %% "munit" % "1.0.0" % Test
+    libraryDependencies ++= Seq(
+      "org.scalameta" %% "munit" % "1.0.0" % Test,
+      "io.circe" %% "circe-core" % "0.15.0-M1",
+      "io.circe" %% "circe-generic" % "0.15.0-M1",
+      "io.circe" %% "circe-parser" % "0.15.0-M1"
+    )
   )
