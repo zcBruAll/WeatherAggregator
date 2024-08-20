@@ -38,6 +38,15 @@ object OpenMeteoRequest {
   }
 
   def displayForecast(selectedRegion: (Double, Double)) = {
+    // Define ANSI escape codes for colors
+    val resetColor = "\u001B[0m"
+    val yellowColor = "\u001B[33m"
+    val cyanColor = "\u001B[36m"
+    val redColor = "\u001B[31m"
+    val greenColor = "\u001B[32m"
+    val boldText = "\u001B[1m"
+    val lightGray = "\u001B[37m"
+
     // Define the API endpoint and parameters
     val apiUrl = "https://api.open-meteo.com/v1/forecast"
     val latitude = selectedRegion._1.toString()
@@ -63,8 +72,12 @@ object OpenMeteoRequest {
 
     // Decode the JSON response into the WeatherResponse case class
     parse(jsonResponse).flatMap(_.as[WeatherForecast]) match {
-      case Left(failure) => println(s"Failed to parse JSON: $failure")
+      case Left(failure) =>
+        println(s"${redColor}Failed to parse JSON: $failure$resetColor")
       case Right(weatherResponse) =>
+        println(
+          s"\n$boldText$lightGray--- 7-Day Weather Forecast ---$resetColor\n"
+        )
         val times = weatherResponse.daily.time
         val temperatures_2m_min = weatherResponse.daily.temperature_2m_min
         val temperatures_2m_max = weatherResponse.daily.temperature_2m_max
@@ -80,12 +93,32 @@ object OpenMeteoRequest {
 
         zippedForecast.foreach { case (time, minTemp, maxTemp, weatherCode) =>
           val weatherCodeDescribed = describeWeatherCode(weatherCode)
-          println(s"Date: $time - $minTemp <> $maxTemp | Condition: $weatherCodeDescribed")
+          val tempColor =
+            if (maxTemp > 25) redColor
+            else if (minTemp < 0) cyanColor
+            else yellowColor
+
+          println(s"$greenColor Date$resetColor $boldText$time$resetColor")
+          println(
+            f"$boldText Min Temp:$resetColor $tempColor$minTemp%4.1f°C$resetColor | $boldText Max Temp:$resetColor $tempColor$maxTemp%4.1f°C$resetColor"
+          )
+          println(
+            s"$boldText Condition:$resetColor $lightGray$weatherCodeDescribed$resetColor"
+          )
+          println(s"${lightGray}--------------------------------$resetColor")
         }
     }
   }
 
   def displayTemperature(selectedRegion: (Double, Double)) = {
+    // Define ANSI escape codes for colors
+    val resetColor = "\u001B[0m"
+    val yellowColor = "\u001B[33m"
+    val cyanColor = "\u001B[36m"
+    val redColor = "\u001B[31m"
+    val boldText = "\u001B[1m"
+    val lightGray = "\u001B[37m"
+
     // Define the API endpoint and parameters
     val apiUrl = "https://api.open-meteo.com/v1/forecast"
     val latitude = selectedRegion._1.toString()
@@ -111,13 +144,24 @@ object OpenMeteoRequest {
 
     // Decode the JSON response into the WeatherResponse case class
     parse(jsonResponse).flatMap(_.as[WeatherCurrent]) match {
-      case Left(failure)         => println(s"Failed to parse JSON: $failure")
+      case Left(failure) =>
+        println(s"${redColor}Failed to parse JSON: $failure$resetColor")
       case Right(weatherCurrent) =>
-        // Extract and print the temperature and time
-        val temperatures = weatherCurrent.current.temperature_2m
+        val temperature = weatherCurrent.current.temperature_2m
         val time = weatherCurrent.current.time
+        val tempColor =
+          if (temperature > 25) redColor
+          else if (temperature < 0) cyanColor
+          else yellowColor
 
-        println(s"Time: $time, Temperature: $temperatures°C")
+        println(
+          s"\n$boldText$lightGray--- Current Temperature ---$resetColor\n"
+        )
+        println(f"$boldText Time:$resetColor $lightGray$time$resetColor")
+        println(
+          f"$boldText Temperature:$resetColor $tempColor$temperature%.1f°C$resetColor"
+        )
+        println(s"${lightGray}----------------------------$resetColor\n")
     }
   }
 
@@ -158,20 +202,20 @@ object OpenMeteoRequest {
   }
 
   def describeWeatherCode(code: Int): String = code match {
-    case 0 => "Clear sky"
-    case 1 => "Mainly clear"
-    case 2 => "Partly cloudy"
-    case 3 => "Overcast"
-    case 45 | 48 => "Fog"
+    case 0            => "Clear sky"
+    case 1            => "Mainly clear"
+    case 2            => "Partly cloudy"
+    case 3            => "Overcast"
+    case 45 | 48      => "Fog"
     case 51 | 53 | 55 => "Drizzle"
     case 61 | 63 | 65 => "Rain"
-    case 66 | 67 => "Freezing rain"
+    case 66 | 67      => "Freezing rain"
     case 71 | 73 | 75 => "Snow fall"
-    case 77 => "Snow grains"
+    case 77           => "Snow grains"
     case 80 | 81 | 82 => "Rain showers"
-    case 85 | 86 => "Snow showers"
-    case 95 => "Thunderstorm"
-    case 96 | 99 => "Thunderstorm with hail"
-    case _ => "Unknown weather condition"
+    case 85 | 86      => "Snow showers"
+    case 95           => "Thunderstorm"
+    case 96 | 99      => "Thunderstorm with hail"
+    case _            => "Unknown weather condition"
   }
 }
