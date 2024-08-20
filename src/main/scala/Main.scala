@@ -17,7 +17,8 @@ object OpenMeteoRequest {
   case class Daily(
       time: List[String],
       temperature_2m_max: List[Double],
-      temperature_2m_min: List[Double]
+      temperature_2m_min: List[Double],
+      weather_code: List[Int]
   )
   case class WeatherForecast(daily: Daily)
 
@@ -42,7 +43,7 @@ object OpenMeteoRequest {
     val latitude = selectedRegion._1.toString()
     val longitude = selectedRegion._2.toString()
     val params =
-      s"?latitude=$latitude&longitude=$longitude&daily=temperature_2m_max,temperature_2m_min&timezone=Europe%2FBerlin"
+      s"?latitude=$latitude&longitude=$longitude&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Europe%2FBerlin"
     val uri = s"$apiUrl$params"
 
     // Create an HttpClient
@@ -60,25 +61,26 @@ object OpenMeteoRequest {
     // Parse the JSON response
     val jsonResponse = response.body()
 
-    println(jsonResponse)
-
     // Decode the JSON response into the WeatherResponse case class
     parse(jsonResponse).flatMap(_.as[WeatherForecast]) match {
       case Left(failure) => println(s"Failed to parse JSON: $failure")
       case Right(weatherResponse) =>
-        val temperatures_2m_max = weatherResponse.daily.temperature_2m_max
-        val temperatures_2m_min = weatherResponse.daily.temperature_2m_min
         val times = weatherResponse.daily.time
+        val temperatures_2m_min = weatherResponse.daily.temperature_2m_min
+        val temperatures_2m_max = weatherResponse.daily.temperature_2m_max
+        val weather_code = weatherResponse.daily.weather_code
 
         val zippedForecast = times
           .zip(temperatures_2m_min)
           .zip(temperatures_2m_max)
-          .map { case ((time, minTemp), maxTemp) =>
-            (time, minTemp, maxTemp)
+          .zip(weather_code)
+          .map { case (((time, minTemp), maxTemp), weatherCode) =>
+            (time, minTemp, maxTemp, weatherCode)
           }
 
-        zippedForecast.foreach { case (time, minTemp, maxTemp) =>
-          println(s"Date: $time - $minTemp <> $maxTemp")
+        zippedForecast.foreach { case (time, minTemp, maxTemp, weatherCode) =>
+          val weatherCodeDescribed = describeWeatherCode(weatherCode)
+          println(s"Date: $time - $minTemp <> $maxTemp | Condition: $weatherCodeDescribed")
         }
     }
   }
@@ -153,5 +155,23 @@ object OpenMeteoRequest {
     val index: Int = Try(readLine().toInt).getOrElse(1)
     val adjustIndex = if (index >= 1 && index <= 5) index - 1 else 0
     regions(adjustIndex)
+  }
+
+  def describeWeatherCode(code: Int): String = code match {
+    case 0 => "Clear sky"
+    case 1 => "Mainly clear"
+    case 2 => "Partly cloudy"
+    case 3 => "Overcast"
+    case 45 | 48 => "Fog"
+    case 51 | 53 | 55 => "Drizzle"
+    case 61 | 63 | 65 => "Rain"
+    case 66 | 67 => "Freezing rain"
+    case 71 | 73 | 75 => "Snow fall"
+    case 77 => "Snow grains"
+    case 80 | 81 | 82 => "Rain showers"
+    case 85 | 86 => "Snow showers"
+    case 95 => "Thunderstorm"
+    case 96 | 99 => "Thunderstorm with hail"
+    case _ => "Unknown weather condition"
   }
 }
