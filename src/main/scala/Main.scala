@@ -92,7 +92,7 @@ object OpenMeteoRequest {
         ) + 4
 
         // Build the table rows
-        val headerRow = times.map(date => s"$boldText${centerText(date, columnWidth)}$resetColor").mkString("|", "||", "|")
+        val headerRow = times.map(date => s"$boldText${centerText(date, columnWidth)}$resetColor").mkString("│", "│", "│")
         val tempRow = (temperatures_2m_min.zip(temperatures_2m_max))
           .map { case (minTemp, maxTemp) =>
             val minColor = 
@@ -105,19 +105,23 @@ object OpenMeteoRequest {
               else yellowColor
             
             centerText(f"$minColor$minTemp%.1f°C$resetColor - $maxColor$maxTemp%.1f°C$resetColor", columnWidth)
-          }.mkString("|", "||", "|")
+          }.mkString("│", "│", "│")
         val conditionRow = weather_code.map(code =>
           centerText(describeWeatherCode(code), columnWidth)
-        ).mkString("|", "||", "|")
+        ).mkString("│", "│", "│")
+
+        val topBorder = s"╒${{"═" * (columnWidth) + "╤"} * (times.length - 1) + "═" * (columnWidth)}╕"
+        val middleBorder = s"├${{"─" * (columnWidth) + "┼"} * (times.length - 1) + "─" * (columnWidth)}┤"
+        val bottomBorder = s"╘${{"═" * (columnWidth) + "╧"} * (times.length - 1) + "═" * (columnWidth)}╛"
 
         // Print the table
-        println("=" * (times.length * (columnWidth + 1) + 7))
+        println(topBorder)
         println(headerRow)
-        println("-" * (times.length * (columnWidth + 1) + 7))
+        println(middleBorder)
         println(tempRow)
-        println("-" * (times.length * (columnWidth + 1) + 7))
+        println(middleBorder)
         println(conditionRow)
-        println("=" * (times.length * (columnWidth + 1) + 7))
+        println(bottomBorder)
     }
   }
 
@@ -212,23 +216,35 @@ object OpenMeteoRequest {
     regions(adjustIndex)
   }
 
-  def describeWeatherCode(code: Int): String = code match {
-    case 0            => "Clear sky"
-    case 1            => "Mainly clear"
-    case 2            => "Partly cloudy"
-    case 3            => "Overcast"
-    case 45 | 48      => "Fog"
-    case 51 | 53 | 55 => "Drizzle"
-    case 61 | 63 | 65 => "Rain"
-    case 66 | 67      => "Freezing rain"
-    case 71 | 73 | 75 => "Snow fall"
-    case 77           => "Snow grains"
-    case 80 | 81 | 82 => "Rain showers"
-    case 85 | 86      => "Snow showers"
-    case 95           => "Thunderstorm"
-    case 96 | 99      => "Thunderstorm with hail"
-    case _            => "Unknown weather condition"
+  def describeWeatherCode(code: Int): String = {
+    val resetColor = "\u001B[0m"
+    val yellowColor = "\u001B[33m"
+    val brightYellowColor = "\u001B[93m"
+    val cyanColor = "\u001B[36m"
+    val blueColor = "\u001B[34m"
+    val whiteColor = "\u001B[37m"
+    val grayColor = "\u001B[90m"
+    val redColor = "\u001B[31m"
+
+    code match {
+      case 0            => s"${brightYellowColor}Clear sky${resetColor}"
+      case 1            => s"${yellowColor}Mainly clear${resetColor}"
+      case 2            => s"${cyanColor}Partly cloudy${resetColor}"
+      case 3            => s"${grayColor}Overcast${resetColor}"
+      case 45 | 48      => s"${whiteColor}Fog${resetColor}"
+      case 51 | 53 | 55 => s"${cyanColor}Drizzle${resetColor}"
+      case 61 | 63 | 65 => s"${blueColor}Rain${resetColor}"
+      case 66 | 67      => s"${cyanColor}Freezing rain${resetColor}"
+      case 71 | 73 | 75 => s"${whiteColor}Snow fall${resetColor}"
+      case 77           => s"${whiteColor}Snow grains${resetColor}"
+      case 80 | 81 | 82 => s"${blueColor}Rain showers${resetColor}"
+      case 85 | 86      => s"${whiteColor}Snow showers${resetColor}"
+      case 95           => s"${redColor}Thunderstorm${resetColor}"
+      case 96 | 99      => s"${redColor}Thunderstorm with hail${resetColor}"
+      case _            => s"${yellowColor}Unknown weather condition${resetColor}"
+    }
   }
+
   
   def stripAnsiCodes(text: String): String = {
     text.replaceAll("\u001B\\[[;\\d]*m", "")
