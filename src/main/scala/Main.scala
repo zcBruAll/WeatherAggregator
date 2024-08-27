@@ -247,11 +247,11 @@ object OpenMeteoRequest {
       )
       case 2 => List(
         s"Partly cloudy",
-        s"${cyanColor}   \\  /    ${resetColor}",
-        s"${cyanColor} _ /\"\".-.  ${resetColor}",
-        s"${cyanColor}   \\_(   ).${resetColor}",
-        s"${cyanColor}   /(___(__)${resetColor}",
-        s"${cyanColor}           ${resetColor}"
+        s"${yellowColor}   \\  /    ${resetColor}",
+        s"${yellowColor} _ /\"\"${grayColor}.-.  ${resetColor}",
+        s"${yellowColor}   \\_${grayColor}(   ).${resetColor}",
+        s"${yellowColor}   /${grayColor}(___(__)${resetColor}",
+        s"${yellowColor}           ${resetColor}"
       )
       case 3 => List(
         s"Overcast",
@@ -271,74 +271,74 @@ object OpenMeteoRequest {
       )
       case 51 | 53 | 55 => List(
         s"Drizzle",
-        s"${cyanColor}     .-.     ${resetColor}",
-        s"${cyanColor}    (   ).   ${resetColor}",
-        s"${cyanColor}   (___(__) ${resetColor}",
+        s"${grayColor}     .-.     ${resetColor}",
+        s"${grayColor}    (   ).   ${resetColor}",
+        s"${grayColor}   (___(__) ${resetColor}",
         s"${cyanColor}  ‘ ‘ ‘ ‘ ‘ ${resetColor}",
         s"${cyanColor} ‘ ‘ ‘ ‘ ‘  ${resetColor}"
       )
       case 61 | 63 | 65 => List(
         s"Rain",
-        s"${blueColor}     .-.     ${resetColor}",
-        s"${blueColor}    (   ).   ${resetColor}",
-        s"${blueColor}   (___(__) ${resetColor}",
+        s"${grayColor}     .-.     ${resetColor}",
+        s"${grayColor}    (   ).   ${resetColor}",
+        s"${grayColor}   (___(__) ${resetColor}",
         s"${blueColor}  ‘ ‘ ‘ ‘ ‘ ${resetColor}",
         s"${blueColor} ‘ ‘ ‘ ‘ ‘  ${resetColor}"
       )
       case 66 | 67 => List(
         s"Freezing rain",
-        s"${cyanColor}     .-.     ${resetColor}",
-        s"${cyanColor}    (   ).   ${resetColor}",
-        s"${cyanColor}   (___(__) ${resetColor}",
+        s"${grayColor}     .-.     ${resetColor}",
+        s"${grayColor}    (   ).   ${resetColor}",
+        s"${grayColor}   (___(__) ${resetColor}",
         s"${cyanColor}  * * * * * ${resetColor}",
         s"${cyanColor} * * * * *  ${resetColor}"
       )
       case 71 | 73 | 75 => List(
         s"Snow fall",
-        s"${whiteColor}     .-.     ${resetColor}",
-        s"${whiteColor}    (   ).   ${resetColor}",
-        s"${whiteColor}   (___(__) ${resetColor}",
+        s"${grayColor}     .-.     ${resetColor}",
+        s"${grayColor}    (   ).   ${resetColor}",
+        s"${grayColor}   (___(__) ${resetColor}",
         s"${whiteColor}  * * * * * ${resetColor}",
         s"${whiteColor} * * * * *  ${resetColor}"
       )
       case 77 => List(
         s"Snow grains",
-        s"${whiteColor}     .-.     ${resetColor}",
-        s"${whiteColor}    (   ).   ${resetColor}",
-        s"${whiteColor}   (___(__) ${resetColor}",
+        s"${grayColor}     .-.     ${resetColor}",
+        s"${grayColor}    (   ).   ${resetColor}",
+        s"${grayColor}   (___(__) ${resetColor}",
         s"${whiteColor}    * * *    ${resetColor}",
         s"${whiteColor}   * * *     ${resetColor}"
       )
       case 80 | 81 | 82 => List(
         s"Rain showers",
-        s"${blueColor}     .-.     ${resetColor}",
-        s"${blueColor}    (   ).   ${resetColor}",
-        s"${blueColor}   (___(__) ${resetColor}",
+        s"${grayColor}     .-.     ${resetColor}",
+        s"${grayColor}    (   ).   ${resetColor}",
+        s"${grayColor}   (___(__) ${resetColor}",
         s"${blueColor}  ‘ ‘ ‘ ‘ ‘ ${resetColor}",
         s"${blueColor} ‘ ‘ ‘ ‘ ‘  ${resetColor}"
       )
       case 85 | 86 => List(
         s"Snow showers",
-        s"${whiteColor}     .-.     ${resetColor}",
-        s"${whiteColor}    (   ).   ${resetColor}",
-        s"${whiteColor}   (___(__) ${resetColor}",
+        s"${grayColor}     .-.     ${resetColor}",
+        s"${grayColor}    (   ).   ${resetColor}",
+        s"${grayColor}   (___(__) ${resetColor}",
         s"${whiteColor}  * * * * * ${resetColor}",
         s"${whiteColor} * * * * *  ${resetColor}"
       )
       case 95 => List(
         s"Thunderstorm",
-        s"${redColor}     .-.     ${resetColor}",
-        s"${redColor}    (   ).   ${resetColor}",
-        s"${redColor}   (___(__) ${resetColor}",
+        s"${grayColor}     .-.     ${resetColor}",
+        s"${grayColor}    (   ).   ${resetColor}",
+        s"${grayColor}   (___(__) ${resetColor}",
         s"${redColor}    ⚡ ⚡ ⚡   ${resetColor}",
         s"${redColor}   ⚡ ⚡ ⚡ ⚡  ${resetColor}"
       )
       case 96 | 99 => List(
         s"Thunderstorm with hail",
-        s"${redColor}     .-.     ${resetColor}",
-        s"${redColor}    (   ).   ${resetColor}",
-        s"${redColor}   (___(__) ${resetColor}",
-        s"${redColor}    ⚡ * ⚡   ${resetColor}",
+        s"${grayColor}     .-.     ${resetColor}",
+        s"${grayColor}    (   ).   ${resetColor}",
+        s"${grayColor}   (___(__) ${resetColor}",
+        s"${whiteColor}    ⚡ * ⚡   ${resetColor}",
         s"${redColor}   ⚡ ⚡ ⚡ ⚡  ${resetColor}"
       )
       case _ => List(
