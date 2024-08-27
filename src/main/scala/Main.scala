@@ -87,7 +87,7 @@ object OpenMeteoRequest {
             "00.0°C - 00.0°C".length
           ), 
           weather_code.map(
-            code => describeWeatherCode(code).length
+            code => describeWeatherCode(code).map(_.length).max
           ).max
         ) + 4
 
@@ -106,9 +106,11 @@ object OpenMeteoRequest {
             
             centerText(f"$minColor$minTemp%.1f°C$resetColor - $maxColor$maxTemp%.1f°C$resetColor", columnWidth)
           }.mkString("│", "│", "│")
-        val conditionRow = weather_code.map(code =>
-          centerText(describeWeatherCode(code), columnWidth)
-        ).mkString("│", "│", "│")
+        val conditionRow = (0 until 6).map { lineIndex =>
+          weather_code.map(code =>
+            centerText(describeWeatherCode(code)(lineIndex), columnWidth)
+          ).mkString("│", "│", "│")
+        }.mkString("\n")
 
         val topBorder = s"╒${{"═" * (columnWidth) + "╤"} * (times.length - 1) + "═" * (columnWidth)}╕"
         val middleBorder = s"├${{"─" * (columnWidth) + "┼"} * (times.length - 1) + "─" * (columnWidth)}┤"
@@ -216,7 +218,7 @@ object OpenMeteoRequest {
     regions(adjustIndex)
   }
 
-  def describeWeatherCode(code: Int): String = {
+  def describeWeatherCode(code: Int): List[String] = {
     val resetColor = "\u001B[0m"
     val yellowColor = "\u001B[33m"
     val brightYellowColor = "\u001B[93m"
@@ -227,24 +229,128 @@ object OpenMeteoRequest {
     val redColor = "\u001B[31m"
 
     code match {
-      case 0            => s"${brightYellowColor}Clear sky${resetColor}"
-      case 1            => s"${yellowColor}Mainly clear${resetColor}"
-      case 2            => s"${cyanColor}Partly cloudy${resetColor}"
-      case 3            => s"${grayColor}Overcast${resetColor}"
-      case 45 | 48      => s"${whiteColor}Fog${resetColor}"
-      case 51 | 53 | 55 => s"${cyanColor}Drizzle${resetColor}"
-      case 61 | 63 | 65 => s"${blueColor}Rain${resetColor}"
-      case 66 | 67      => s"${cyanColor}Freezing rain${resetColor}"
-      case 71 | 73 | 75 => s"${whiteColor}Snow fall${resetColor}"
-      case 77           => s"${whiteColor}Snow grains${resetColor}"
-      case 80 | 81 | 82 => s"${blueColor}Rain showers${resetColor}"
-      case 85 | 86      => s"${whiteColor}Snow showers${resetColor}"
-      case 95           => s"${redColor}Thunderstorm${resetColor}"
-      case 96 | 99      => s"${redColor}Thunderstorm with hail${resetColor}"
-      case _            => s"${yellowColor}Unknown weather condition${resetColor}"
+      case 0 => List(
+        s"Clear sky",
+        s"${brightYellowColor}    \\   /    ${resetColor}",
+        s"${brightYellowColor}     .-.     ${resetColor}",
+        s"${brightYellowColor}  ― (   ) ―  ${resetColor}",
+        s"${brightYellowColor}     `-’     ${resetColor}",
+        s"${brightYellowColor}    /   \\    ${resetColor}"
+      )
+      case 1 => List(
+        s"Mainly clear",
+        s"${yellowColor}    \\   /    ${resetColor}",
+        s"${yellowColor}     .-.     ${resetColor}",
+        s"${yellowColor}  ― (   ) ―  ${resetColor}",
+        s"${yellowColor}     `-’     ${resetColor}",
+        s"${yellowColor}    /   \\    ${resetColor}"
+      )
+      case 2 => List(
+        s"Partly cloudy",
+        s"${cyanColor}   \\  /    ${resetColor}",
+        s"${cyanColor} _ /\"\".-.  ${resetColor}",
+        s"${cyanColor}   \\_(   ).${resetColor}",
+        s"${cyanColor}   /(___(__)${resetColor}",
+        s"${cyanColor}           ${resetColor}"
+      )
+      case 3 => List(
+        s"Overcast",
+        s"${grayColor}             ${resetColor}",
+        s"${grayColor}     .--.    ${resetColor}",
+        s"${grayColor}  .-(    ).  ${resetColor}",
+        s"${grayColor} (___.__)__) ${resetColor}",
+        s"${grayColor}             ${resetColor}"
+      )
+      case 45 | 48 => List(
+        s"Fog",
+        s"${whiteColor}     _ - _  ${resetColor}",
+        s"${whiteColor}   /     \\ ${resetColor}",
+        s"${whiteColor}  /_     _\\${resetColor}",
+        s"${whiteColor}   \\_   _/ ${resetColor}",
+        s"${whiteColor}    /   \\  ${resetColor}"
+      )
+      case 51 | 53 | 55 => List(
+        s"Drizzle",
+        s"${cyanColor}     .-.     ${resetColor}",
+        s"${cyanColor}    (   ).   ${resetColor}",
+        s"${cyanColor}   (___(__) ${resetColor}",
+        s"${cyanColor}  ‘ ‘ ‘ ‘ ‘ ${resetColor}",
+        s"${cyanColor} ‘ ‘ ‘ ‘ ‘  ${resetColor}"
+      )
+      case 61 | 63 | 65 => List(
+        s"Rain",
+        s"${blueColor}     .-.     ${resetColor}",
+        s"${blueColor}    (   ).   ${resetColor}",
+        s"${blueColor}   (___(__) ${resetColor}",
+        s"${blueColor}  ‘ ‘ ‘ ‘ ‘ ${resetColor}",
+        s"${blueColor} ‘ ‘ ‘ ‘ ‘  ${resetColor}"
+      )
+      case 66 | 67 => List(
+        s"Freezing rain",
+        s"${cyanColor}     .-.     ${resetColor}",
+        s"${cyanColor}    (   ).   ${resetColor}",
+        s"${cyanColor}   (___(__) ${resetColor}",
+        s"${cyanColor}  * * * * * ${resetColor}",
+        s"${cyanColor} * * * * *  ${resetColor}"
+      )
+      case 71 | 73 | 75 => List(
+        s"Snow fall",
+        s"${whiteColor}     .-.     ${resetColor}",
+        s"${whiteColor}    (   ).   ${resetColor}",
+        s"${whiteColor}   (___(__) ${resetColor}",
+        s"${whiteColor}  * * * * * ${resetColor}",
+        s"${whiteColor} * * * * *  ${resetColor}"
+      )
+      case 77 => List(
+        s"Snow grains",
+        s"${whiteColor}     .-.     ${resetColor}",
+        s"${whiteColor}    (   ).   ${resetColor}",
+        s"${whiteColor}   (___(__) ${resetColor}",
+        s"${whiteColor}    * * *    ${resetColor}",
+        s"${whiteColor}   * * *     ${resetColor}"
+      )
+      case 80 | 81 | 82 => List(
+        s"Rain showers",
+        s"${blueColor}     .-.     ${resetColor}",
+        s"${blueColor}    (   ).   ${resetColor}",
+        s"${blueColor}   (___(__) ${resetColor}",
+        s"${blueColor}  ‘ ‘ ‘ ‘ ‘ ${resetColor}",
+        s"${blueColor} ‘ ‘ ‘ ‘ ‘  ${resetColor}"
+      )
+      case 85 | 86 => List(
+        s"Snow showers",
+        s"${whiteColor}     .-.     ${resetColor}",
+        s"${whiteColor}    (   ).   ${resetColor}",
+        s"${whiteColor}   (___(__) ${resetColor}",
+        s"${whiteColor}  * * * * * ${resetColor}",
+        s"${whiteColor} * * * * *  ${resetColor}"
+      )
+      case 95 => List(
+        s"Thunderstorm",
+        s"${redColor}     .-.     ${resetColor}",
+        s"${redColor}    (   ).   ${resetColor}",
+        s"${redColor}   (___(__) ${resetColor}",
+        s"${redColor}    ⚡ ⚡ ⚡   ${resetColor}",
+        s"${redColor}   ⚡ ⚡ ⚡ ⚡  ${resetColor}"
+      )
+      case 96 | 99 => List(
+        s"Thunderstorm with hail",
+        s"${redColor}     .-.     ${resetColor}",
+        s"${redColor}    (   ).   ${resetColor}",
+        s"${redColor}   (___(__) ${resetColor}",
+        s"${redColor}    ⚡ * ⚡   ${resetColor}",
+        s"${redColor}   ⚡ ⚡ ⚡ ⚡  ${resetColor}"
+      )
+      case _ => List(
+        s"Unknown weather condition",
+        s"${yellowColor}          ${resetColor}",
+        s"${yellowColor}          ${resetColor}",
+        s"${yellowColor}   ????   ${resetColor}",
+        s"${yellowColor}          ${resetColor}",
+        s"${yellowColor}          ${resetColor}"
+      )
     }
   }
-
   
   def stripAnsiCodes(text: String): String = {
     text.replaceAll("\u001B\\[[;\\d]*m", "")
