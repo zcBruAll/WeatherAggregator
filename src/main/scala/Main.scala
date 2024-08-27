@@ -70,43 +70,54 @@ object OpenMeteoRequest {
     // Parse the JSON response
     val jsonResponse = response.body()
 
-    // Decode the JSON response into the WeatherResponse case class
+    // Decode the JSON response into the WeatherForecast case class
     parse(jsonResponse).flatMap(_.as[WeatherForecast]) match {
       case Left(failure) =>
         println(s"${redColor}Failed to parse JSON: $failure$resetColor")
       case Right(weatherResponse) =>
-        println(
-          s"\n$boldText$lightGray--- 7-Day Weather Forecast ---$resetColor\n"
-        )
         val times = weatherResponse.daily.time
         val temperatures_2m_min = weatherResponse.daily.temperature_2m_min
         val temperatures_2m_max = weatherResponse.daily.temperature_2m_max
         val weather_code = weatherResponse.daily.weather_code
 
-        val zippedForecast = times
-          .zip(temperatures_2m_min)
-          .zip(temperatures_2m_max)
-          .zip(weather_code)
-          .map { case (((time, minTemp), maxTemp), weatherCode) =>
-            (time, minTemp, maxTemp, weatherCode)
-          }
+        // Calculate column width dynamically based on the longest date or temperature string
+        val columnWidth = Math.max(
+          Math.max(
+            times.map(_.length).max,
+            "00.0°C - 00.0°C".length
+          ), 
+          weather_code.map(
+            code => describeWeatherCode(code).length
+          ).max
+        ) + 4
 
-        zippedForecast.foreach { case (time, minTemp, maxTemp, weatherCode) =>
-          val weatherCodeDescribed = describeWeatherCode(weatherCode)
-          val tempColor =
-            if (maxTemp > 25) redColor
-            else if (minTemp < 0) cyanColor
-            else yellowColor
+        // Build the table rows
+        val headerRow = times.map(date => s"$boldText${centerText(date, columnWidth)}$resetColor").mkString("|", "||", "|")
+        val tempRow = (temperatures_2m_min.zip(temperatures_2m_max))
+          .map { case (minTemp, maxTemp) =>
+            val minColor = 
+              if (minTemp > 25) redColor
+              else if (minTemp < 10) cyanColor
+              else yellowColor
+            val maxColor = 
+              if (maxTemp > 25) redColor
+              else if (maxTemp < 10) cyanColor
+              else yellowColor
+            
+            centerText(f"$minColor$minTemp%.1f°C$resetColor - $maxColor$maxTemp%.1f°C$resetColor", columnWidth)
+          }.mkString("|", "||", "|")
+        val conditionRow = weather_code.map(code =>
+          centerText(describeWeatherCode(code), columnWidth)
+        ).mkString("|", "||", "|")
 
-          println(s"$greenColor Date$resetColor $boldText$time$resetColor")
-          println(
-            f"$boldText Min Temp:$resetColor $tempColor$minTemp%4.1f°C$resetColor | $boldText Max Temp:$resetColor $tempColor$maxTemp%4.1f°C$resetColor"
-          )
-          println(
-            s"$boldText Condition:$resetColor $lightGray$weatherCodeDescribed$resetColor"
-          )
-          println(s"${lightGray}--------------------------------$resetColor")
-        }
+        // Print the table
+        println("=" * (times.length * (columnWidth + 1) + 7))
+        println(headerRow)
+        println("-" * (times.length * (columnWidth + 1) + 7))
+        println(tempRow)
+        println("-" * (times.length * (columnWidth + 1) + 7))
+        println(conditionRow)
+        println("=" * (times.length * (columnWidth + 1) + 7))
     }
   }
 
@@ -217,5 +228,17 @@ object OpenMeteoRequest {
     case 95           => "Thunderstorm"
     case 96 | 99      => "Thunderstorm with hail"
     case _            => "Unknown weather condition"
+  }
+  
+  def stripAnsiCodes(text: String): String = {
+    text.replaceAll("\u001B\\[[;\\d]*m", "")
+  }
+
+  def centerText(text: String, width: Int): String = {
+    val strippedText = stripAnsiCodes(text) // Remove color codes for width calculation
+    val padding = width - strippedText.length
+    val leftPadding = padding / 2
+    val rightPadding = padding - leftPadding
+    " " * leftPadding + text + " " * rightPadding
   }
 }
