@@ -87,7 +87,7 @@ object OpenMeteoRequest {
             "00.0°C - 00.0°C".length
           ), 
           weather_code.map(
-            code => describeWeatherCode(code).map(_.length).max
+            code => describeWeatherCode(code).map(stripAnsiCodes(_).length).max
           ).max
         ) + 4
 
@@ -330,16 +330,16 @@ object OpenMeteoRequest {
         s"${grayColor}     .-.     ${resetColor}",
         s"${grayColor}    (   ).   ${resetColor}",
         s"${grayColor}   (___(__) ${resetColor}",
-        s"${redColor}    ⚡ ⚡ ⚡   ${resetColor}",
-        s"${redColor}   ⚡ ⚡ ⚡ ⚡  ${resetColor}"
+        s"${yellowColor}    / / /   ${resetColor}",
+        s"${yellowColor}   / / / /  ${resetColor}"
       )
       case 96 | 99 => List(
         s"Thunderstorm with hail",
         s"${grayColor}     .-.     ${resetColor}",
         s"${grayColor}    (   ).   ${resetColor}",
         s"${grayColor}   (___(__) ${resetColor}",
-        s"${whiteColor}    ⚡ * ⚡   ${resetColor}",
-        s"${redColor}   ⚡ ⚡ ⚡ ⚡  ${resetColor}"
+        s"${yellowColor}    / ${whiteColor}* ${yellowColor}/   ${resetColor}",
+        s"${yellowColor}   / / / /  ${resetColor}"
       )
       case _ => List(
         s"Unknown weather condition",
